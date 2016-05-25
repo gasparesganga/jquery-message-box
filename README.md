@@ -4,4 +4,4 @@ A jQuery Plugin to replace Javascript's window.alert(), window.confirm() and win
 
 ---
 
-Documentation and examples at http://gasparesganga.com/labs/jquery-message-box
+Documentation and examples at http://gasparesganga.com/labs/jquery-message-box/

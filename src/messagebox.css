@@ -65,14 +65,14 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
 
 /* Input */
 #messagebox_content_input {
-    color               : #303030;
-    border              : 1px solid #909090;
-    display             : block;
-    width               : 100%;
-    margin-left         : auto;
-    margin-right        : auto;
-    margin-top          : 10px;
-    padding             : 3px;
+    color           : #303030;
+    border          : 1px solid #909090;
+    display         : block;
+    width           : 100%;
+    margin-left     : auto;
+    margin-right    : auto;
+    margin-top      : 10px;
+    padding         : 3px;
 }
     #messagebox_content_input:hover {
         border-color    : #707070;
@@ -90,23 +90,19 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
     text-align          : center;
 }
     #messagebox_buttons button {
-        font-family             : inherit;
-        font-size               : inherit;
-        font-weight             : bold;
-        text-align              : center;
-        min-width               : 60px;
-        margin                  : 0px 4px;
-        padding                 : 5px 10px;
-        cursor                  : pointer;
-        color                   : #404040;
-        background-color        : #e9e9e9;
-            background-image    :         linear-gradient(top, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 51%, rgba(255,255,255,0.0) 100%);
-            background-image    :    -moz-linear-gradient(top, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 51%, rgba(255,255,255,0.0) 100%);
-            background-image    : -webkit-linear-gradient(top, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 51%, rgba(255,255,255,0.0) 100%);
-            background-image    :      -o-linear-gradient(top, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 51%, rgba(255,255,255,0.0) 100%);
-            background-image    :     -ms-linear-gradient(top, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 51%, rgba(255,255,255,0.0) 100%);
-        border                  : 1px solid #c0c0c0;
-        border-radius           : 2px;
+        font-family         : inherit;
+        font-size           : inherit;
+        font-weight         : bold;
+        text-align          : center;
+        min-width           : 60px;
+        margin              : 0px 4px;
+        padding             : 5px 10px;
+        cursor              : pointer;
+        color               : #404040;
+        background-color    : #e9e9e9;
+        background-image    : linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 51%, rgba(255,255,255,0.0) 100%);
+        border              : 1px solid #c0c0c0;
+        border-radius       : 2px;
     }
         #messagebox_buttons button:hover {
             color               : #202020;
