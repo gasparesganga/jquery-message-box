@@ -1,145 +1,463 @@
 /***********************************************************************************************************************
 MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.confirm() and window.prompt() functions
     Author          : Gaspare Sganga
-    Version         : 1.1
+    Version         : 2.0.0
     License         : MIT
     Documentation   : http://gasparesganga.com/labs/jquery-message-box/
 ***********************************************************************************************************************/
 (function($, undefined){
-    // Global Variables
-    var _active = false;
-    var _queue  = [];
-    
     // Default Settings
     var _defaults = {
-        buttonDone  : "OK",
-        buttonFail  : undefined,
-        message     : "",
-        input       : false,
-        speed       : 200,
-        top         : "25%",
-        width       : undefined
+        buttonDone      : "OK",
+        buttonFail      : undefined,
+        buttonsOrder    : "done fail",
+        customClass     : "",
+        input           : false,
+        message         : "",
+        queue           : true,
+        speed           : 200,
+        top             : "25%",
+        width           : "auto"
     };
-
+    
+    // Required CSS
+    var _css = {
+        overlay : {
+            "box-sizing"    : "border-box",
+            "display"       : "flex",
+            "flex-flow"     : "column nowrap",
+            "align-items"   : "center",
+            "position"      : "fixed",
+            "top"           : "0",
+            "left"          : "0",
+            "width"         : "100%",
+            "height"        : "100%"
+        },
+        messagebox : {
+            "box-sizing"    : "border-box",
+            "flex"          : "0 1 auto",
+            "display"       : "flex",
+            "flex-flow"     : "column nowrap",
+        },
+        content : {
+            "box-sizing"    : "border-box",
+            "flex"          : "0 1 auto",
+            "overflow-y"    : "auto"
+        },
+        buttons : {
+            "box-sizing"    : "border-box",
+            "flex"          : "0 0 auto"
+        },
+        boxSizing : {
+            "box-sizing"    : "border-box"
+        }
+    };
+    
+    // Globals
+    var _active         = undefined;
+    var _activeStack    = [];
+    var _queue          = [];
+    
+    // Constants
+    var _constants = {
+        buttonDoneName          : "buttonDone",
+        buttonFailName          : "buttonFail",
+        keyCodeDone             : [13],
+        keyCodeFail             : [27],
+        maxHeightCoefficient    : 1.5,
+        topBuffer               : -100
+    };
+    
+    
+    // **************************************************
+    //  METHODS
+    // **************************************************
     $.MessageBoxSetup = function(options){
         $.extend(true, _defaults, options);
     };
-
+    
     $.MessageBox = function(options){
-        if (typeof options != "object") options = {message : options};
-        var deferred = $.Deferred();
-        var settings = $.extend(true, {}, _defaults, options);
-        // Add MessageBox to the Queue
-        _queue.push({
-            deferred : deferred,
-            settings : settings,
-        });
-        _ExecuteQueue();
-        // Return Deferred
+        if (!$.isPlainObject(options)) options = {message : options};
+        var deferred    = $.Deferred();
+        var settings    = $.extend(true, {}, _defaults, options);
+        settings.top = $.trim(settings.top).toLowerCase();
+        
+        // Remove focus from active element
+        $(document.activeElement).trigger("blur");
+        
+        // Create MessageBox instance
+        var instance = {
+            deferred    : deferred,
+            keyCodes    : {},
+            settings    : settings
+        };
+        if (settings.queue) {
+            _queue.push(instance);
+            _ExecuteQueue();
+        } else {
+            if (_active) _activeStack.push(_active);
+            _CreateMessageBox(instance);
+        }
+        
+        // Return Promise
         return deferred.promise();
     };
-
-
+    
+    
+    // **************************************************
+    //  FUNCTIONS
+    // **************************************************
     function _ExecuteQueue(){
         if (_active || !_queue.length) return;
-        var queueItem   = _queue.shift();
-        var settings    = queueItem.settings;
-        _active = true;
+        _CreateMessageBox(_queue.shift());
+    }
+    
+    function _CreateMessageBox(instance){   
+        var settings = instance.settings;
+        _active = instance;
         
         // Overlay
         var overlay = $("<div>", {
-            id  : "messagebox_overlay"
-        }).appendTo("body");
+            class   : "messagebox_overlay"
+        })
+        .css(_css.overlay)
+        .appendTo("body");
         
         // MessageBox
         var messageBox = $("<div>", {
-            id  : "messagebox"
-        }).data("queueItem", queueItem).appendTo(overlay);
-        if (settings.width !== undefined) messageBox.width(settings.width);
+            class   : "messagebox"
+        })
+        .addClass(settings.customClass)
+        .css(_css.messagebox)
+        .data("instance", instance)
+        .appendTo(overlay);
+        if (settings.width) messageBox.outerWidth(settings.width);
         
         // Content
         var content = $("<div>", {
-            id      : "messagebox_content",
+            class   : "messagebox_content",
             html    : settings.message
-        }).appendTo(messageBox);
+        })
+        .css(_css.content)
+        .appendTo(messageBox);
         
         // Input
-        if (settings.input) {
-            var input = (typeof settings.input == "boolean") ? $("<input>", {type : "text"}) : $(settings.input);
-            input
-                .attr("id", "messagebox_content_input")
-                .appendTo(content)
-                .trigger("focus");
+        if (settings.input !== false && settings.input !== undefined && settings.input !== null) {
+            var inputs = $("<div>", {
+                class   : "messagebox_content_inputs",
+                css     : _css.boxSizing
+            }).appendTo(content);
+            _ParseInputs(settings.input).appendTo(inputs).first().trigger("focus");
         }
         
         // Buttons
-        var buttons = $("<div>", {
-            id  : "messagebox_buttons"
-        }).appendTo(messageBox);
-        $("<button>", {
-            id      : "messagebox_button_done",
-            text    : settings.buttonDone
-        }).on("click", _Button_Click).appendTo(buttons);
-        if (settings.buttonFail) $("<button>", {
-            id      : "messagebox_button_fail",
-            text    : settings.buttonFail
-        }).on("click", _Button_Click).prependTo(buttons);
+        var buttonsWrapper = $("<div>", {
+            class   : "messagebox_buttons"
+        })
+        .css(_css.buttons)
+        .appendTo(messageBox);
         
-        // Attach Window's Events Handlers
-        $(window)
-            .on("resize",   {messageBox : messageBox}, _Window_Resize)
-            .on("keydown",  _Window_KeyDown)
-            .triggerHandler("resize");
-        
-        // Show MessageBox
-        messageBox.animate({
-            top : settings.top
-        }, settings.speed);
-    }
-
-
-    // ******************************
-    //  EVENTS
-    // ******************************
-    function _Button_Click(event){
-        var $this       = $(event.currentTarget);
-        var messageBox  = $this.closest("#messagebox");
-        var inputValue  = messageBox.find("#messagebox_content_input").val();
-        var queueItem   = messageBox.data("queueItem");
-        messageBox.animate({
-            top : "-100%"
-        }, queueItem.settings.speed, function(){
-            // Remove Window's Events Handlers
-            $(window)
-                .off("resize",  _Window_Resize)
-                .off("keydown", _Window_KeyDown);
-            // Remove Overlay
-            $("#messagebox_overlay").remove();
-            // Resolve or Reject Deferred
-            if ($this.attr("id") == "messagebox_button_done") {
-                queueItem.deferred.resolve(inputValue);
+        // Button Done
+        if (settings.buttonDone) {
+            var buttons = $([]);
+            if (typeof settings.buttonDone == "string") {
+                buttons = buttons.add(_CreateButton("messagebox_button_done", _constants.buttonDoneName, {
+                    text    : settings.buttonDone, 
+                    keyCode : _constants.keyCodeDone
+                }, instance));
             } else {
-                queueItem.deferred.reject(inputValue);
+                $.each(settings.buttonDone, function(name, definition){
+                    buttons = buttons.add(_CreateButton("messagebox_button_done", name, definition, instance));
+                });
             }
-            // Execute next Queue item
-            _active = false;
-            _ExecuteQueue();
+            buttons.appendTo(buttonsWrapper);
+        }
+        
+        // Button Fail
+        if (settings.buttonFail) {
+            var buttons = $([]);
+            if (typeof settings.buttonFail == "string") {
+                buttons = buttons.add(_CreateButton("messagebox_button_fail", _constants.buttonFailName, {
+                    text    : settings.buttonFail, 
+                    keyCode : _constants.keyCodeFail
+                }, instance));
+            } else {
+                $.each(settings.buttonFail, function(name, definition){
+                    buttons = buttons.add(_CreateButton("messagebox_button_fail", name, definition, instance));
+                });
+            }
+            if ($.trim(settings.buttonsOrder).toLowerCase().indexOf("d") === 0) {
+                buttons.appendTo(buttonsWrapper);
+            } else {
+                buttons.prependTo(buttonsWrapper);
+            }
+        }
+        
+        // Calculate margin-top
+        var marginTop;
+        if ($.trim(settings.top).toLowerCase() == "auto") {
+            // Auto: center vertically using flexbox
+            overlay.css("justify-content", "center");
+            marginTop = 0;
+        } else {
+            overlay.css("justify-content", "flex-start");
+            marginTop = settings.top;
+            // Percentage: set a fixed percentage value too
+            if ($.trim(settings.top).toLowerCase().slice(-1) == "%")  {
+                messageBox.css("max-height", 100 - (parseInt(settings.top, 10) * _constants.maxHeightCoefficient) + "%");
+            } else {
+                // Fixed: refresh on every window.resize event
+                messageBox.data("fRefreshMaxHeight", true);
+            }
+        }
+         
+        // Show MessageBox
+        messageBox
+            .css("margin-top", _constants.topBuffer - $(window).height() - messageBox.outerHeight())
+            .animate({
+                "margin-top" : marginTop
+            }, settings.speed, function(){
+                _SetMaxHeight(messageBox, $(window).height());
+            });
+    }
+    
+    
+    function _CreateButton(mainClass, name, definition, instance){
+        if (typeof definition == "string") definition = {text : definition};
+        // Button
+        var button = $("<button>", {
+            class   : mainClass,
+            text    : definition.text || ""
+        })
+        .addClass(definition.class)
+        .css(_css.boxSizing)
+        .on("click", {name : name}, _Button_Click);
+        
+        // KeyCodes
+        $.each(_ParseKeycodes(definition.keyCode), function(i, keyCode){
+            instance.keyCodes[keyCode] = button;
         });
+        
+        return button;
     }
-
-    function _Window_Resize(event){
-        var messageBox = event.data.messageBox;
-        messageBox.css("left", ($(event.currentTarget).width() - messageBox.outerWidth()) / 2);
+    
+    function _ParseKeycodes(keyCodes){
+        if (typeof keyCodes == "number" || typeof keyCodes == "string") keyCodes = [keyCodes];
+        var ret = [];
+        if ($.isArray(keyCodes)) {
+            ret = $.map(keyCodes, function(keycode){
+                return parseInt(keycode, 10) || undefined;
+            });
+        }
+        return ret;
     }
-
-    function _Window_KeyDown(event) {
-        if (event.keyCode === 27) {
-            if (!$("#messagebox_button_fail").trigger("click").length) $("#messagebox_button_done").trigger("click");
-            return false;
-        } else if (event.keyCode === 13) {
-            $("#messagebox_button_done").trigger("click");
-            return false;
+    
+    
+    function _ParseInputs(settingsInput){
+        // Boolean: plain textbox
+        if (settingsInput === true || typeof settingsInput == "string") {
+            return _FormatInput($("<input>", {
+                value   : (settingsInput === true) ? "" : settingsInput,
+                type    : "text"
+            }));
+        }
+        
+        // Array: plain textboxes with default values
+        if ($.isArray(settingsInput)) {
+            var ret = $([]);
+            $.each(settingsInput, function(i, value){
+                ret = ret.add(_FormatInput($("<input>", {
+                    value   : value,
+                    type    : "text"
+                })));
+            });
+            return ret;
+        }
+        
+        // Object: multiple inputs
+        if ($.isPlainObject(settingsInput)) {
+            var ret = $([]);
+            $.each(settingsInput, function(name, definition){
+                var input = _CreateInput(name, definition);
+                if (definition.label !== undefined) {
+                    var label = $("<label>", {
+                        class   : "messagebox_content_label",
+                        css     : _css.boxSizing,
+                        text    : definition.label
+                    });
+                    input.appendTo(label);
+                    ret = ret.add(label);
+                } else {
+                    ret = ret.add(input);
+                }
+            });
+            return ret;
+        }
+        
+        // Default: custom jQuery object/selector or DOM element
+        return $(settingsInput);
+    }
+    
+    function _CreateInput(name, definition){
+        var type = $.trim(definition.type).toLowerCase();
+        switch (type) {
+            case "select":
+                var select  = _FormatInput($("<select>"), name, definition);
+                var options = !$.isArray(definition.options) ? definition.options : definition.options.reduce(function(ret, item){
+                    ret[item] = item;
+                    return ret;
+                }, {});
+                if (!options) {
+                    _Warning('No options provided for "' + name + '"'); 
+                    options = {"" : "&nbsp;"};
+                }
+                var defaultSelected = false;
+                $.each(options, function(value, html){
+                    var option = $("<option>", {
+                        value   : value,
+                        html    : html
+                    }).appendTo(select);
+                    if (definition.default == value) {
+                        option.prop("selected", true);
+                        defaultSelected = true;
+                    }
+                });
+                // Fake placeholder
+                if (!defaultSelected) {
+                    $("<option>", {
+                        value   : "",
+                        text    : definition.title
+                    }).prop({
+                        "disabled"  : true,
+                        "selected"  : true,
+                        "hidden"    : true
+                    }).prependTo(select);
+                    select.find("option").css("color", select.css("color"));  
+                    select
+                        .addClass("messagebox_content_input_selectplaceholder")
+                        .prop("selectedIndex", 0)
+                        .one("change", function(){
+                            select.find("option").css("color", "");
+                            select.removeClass("messagebox_content_input_selectplaceholder");
+                        });
+                }
+                return select;
+                
+            case "text":
+            case "password":
+            default:
+                return _FormatInput($("<input>", {
+                    type        : (type == "password") ? "password" : "text",
+                    maxlength   : definition.maxlength,
+                    placeholder : definition.title,
+                    value       : definition.default
+                }), name, definition);
         }
     }
-
+    
+    function _FormatInput(input, name, definition){
+        definition  = definition || {};
+        return input
+            .addClass("messagebox_content_input")
+            .css(_css.boxSizing)
+            .attr({
+                name    : name,
+                title   : definition.title
+            });
+    }
+    
+    function _GetInputsValues(messageBox){
+        var names   = [];
+        var values  = [];
+        messageBox.find(".messagebox_content_inputs").find("input, select").each(function(){
+            var input = $(this);
+            names.push(input.attr("name"));
+            values.push(input.val());
+        });
+        if (!values.length) return undefined;
+        var retObject   = {};
+        var valuesOnly  = false;
+        $.each(names, function(i, name){
+            if (name === undefined) {
+                valuesOnly = true;
+                return false;
+            }
+            retObject[name] = values[i];
+        });
+        if (valuesOnly && values.length == 1) return values[0];
+        return valuesOnly ? values : retObject;
+    }
+    
+    
+    function _SetMaxHeight(messageBox, h){
+        if (messageBox.data("fRefreshMaxHeight")) messageBox.css("max-height", h - (messageBox.offset().top * _constants.maxHeightCoefficient) );
+    }
+    
+    function _Warning(message){
+        message = "jQuery MessageBox Warning: " + message;
+        if (window.console.warn) {
+            console.warn(message);
+        } else if (window.console.log) {
+            console.log(message);
+        }
+    }
+    
+    
+    // **************************************************
+    //  EVENTS
+    // **************************************************
+    function _Button_Click(event){
+        var button      = $(event.currentTarget);
+        var messageBox  = button.closest(".messagebox");
+        var overlay     = messageBox.closest(".messagebox_overlay");
+        var instance    = messageBox.data("instance");
+        var inputValues = _GetInputsValues(messageBox);
+        messageBox.animate({
+            "margin-top" :  _constants.topBuffer - $(window).height() - messageBox.outerHeight()
+        }, instance.settings.speed, function(){
+            // Remove DOM objects
+            overlay.remove();
+            
+            // Resolve or Reject Deferred
+            if (button.hasClass("messagebox_button_done")) {
+                instance.deferred.resolve(inputValues, event.data.name);
+            } else {
+                instance.deferred.reject(inputValues, event.data.name);
+            }
+            
+            if (_activeStack.length) {
+                // Restore the last active instance
+                _active = _activeStack.pop();
+            } else {
+                // Execute next Queue instance
+                _active = undefined;
+                _ExecuteQueue();
+            }
+        });
+    }
+    
+    function _Window_Resize(event){
+        if (!_active) return;
+        var w = $(event.currentTarget).width();
+        var h = $(event.currentTarget).height();
+        $(document).find(".messagebox").each(function(){
+            var messageBox = $(this);
+            messageBox.css("min-width", (messageBox.outerWidth() > w) ? w : "");
+            _SetMaxHeight(messageBox, h);
+        });
+    }
+    
+    function _Window_KeyDown(event){
+        if (!_active) return;
+        var button = _active.keyCodes[event.which];
+        if (button) button.trigger("click");
+    }
+    
+    
+    $(function(){
+        $(window)
+            .on("resize",   _Window_Resize)
+            .on("keydown",  _Window_KeyDown);
+    });
+    
 }(jQuery));
