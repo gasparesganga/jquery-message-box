@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
 MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.confirm() and window.prompt() functions
     Author          : Gaspare Sganga
-    Version         : 2.0.0
+    Version         : 2.0.1
     License         : MIT
     Documentation   : http://gasparesganga.com/labs/jquery-message-box/
 ***********************************************************************************************************************/
@@ -32,6 +32,10 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
             "left"          : "0",
             "width"         : "100%",
             "height"        : "100%"
+        },
+        spacer : {
+            "box-sizing"    : "border-box",
+            "flex"          : "0 1 auto"
         },
         messagebox : {
             "box-sizing"    : "border-box",
@@ -65,7 +69,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         keyCodeDone             : [13],
         keyCodeFail             : [27],
         maxHeightCoefficient    : 1.5,
-        topBuffer               : -100
+        topBuffer               : 100
     };
     
     
@@ -122,6 +126,13 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         })
         .css(_css.overlay)
         .appendTo("body");
+        
+        // Spacer
+        var spacer = $("<div>", {
+            class   : "messagebox_spacer"
+        })
+        .css(_css.spacer)
+        .appendTo(overlay);
         
         // MessageBox
         var messageBox = $("<div>", {
@@ -193,29 +204,37 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
             }
         }
         
-        // Calculate margin-top
-        var marginTop;
+        // Calculate spacer's height
+        var spacerHeight    = 0;
+        var spacerTopMargin = 0 - messageBox.outerHeight() - _constants.topBuffer;;
         if ($.trim(settings.top).toLowerCase() == "auto") {
             // Auto: center vertically using flexbox
             overlay.css("justify-content", "center");
-            marginTop = 0;
+            spacerTopMargin = spacerTopMargin - $(window).height();
         } else {
+            // Custom: use a spacer element to workoround different browsers' flexbox specs interpretation
             overlay.css("justify-content", "flex-start");
-            marginTop = settings.top;
-            // Percentage: set a fixed percentage value too
+            spacerHeight = settings.top;;
+            // Calculate max-height
             if ($.trim(settings.top).toLowerCase().slice(-1) == "%")  {
+                // Percentage: set a fixed percentage value too
                 messageBox.css("max-height", 100 - (parseInt(settings.top, 10) * _constants.maxHeightCoefficient) + "%");
             } else {
                 // Fixed: refresh on every window.resize event
                 messageBox.data("fRefreshMaxHeight", true);
             }
         }
-         
-        // Show MessageBox
-        messageBox
-            .css("margin-top", _constants.topBuffer - $(window).height() - messageBox.outerHeight())
+        
+        // Show MessageBox    
+        spacer
+            .data("spacerTopMargin", spacerTopMargin)
+            .css({
+                "height"        : 0,
+                "margin-top"    : spacerTopMargin
+            })
             .animate({
-                "margin-top" : marginTop
+                "height"        : spacerHeight,
+                "margin-top"    : 0
             }, settings.speed, function(){
                 _SetMaxHeight(messageBox, $(window).height());
             });
@@ -390,7 +409,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
     
     
     function _SetMaxHeight(messageBox, h){
-        if (messageBox.data("fRefreshMaxHeight")) messageBox.css("max-height", h - (messageBox.offset().top * _constants.maxHeightCoefficient) );
+        if (messageBox.data("fRefreshMaxHeight")) messageBox.css("max-height", h - (messageBox.offset().top * _constants.maxHeightCoefficient));
     }
     
     function _Warning(message){
@@ -410,10 +429,12 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         var button      = $(event.currentTarget);
         var messageBox  = button.closest(".messagebox");
         var overlay     = messageBox.closest(".messagebox_overlay");
+        var spacer      = overlay.children(".messagebox_spacer").first();
         var instance    = messageBox.data("instance");
         var inputValues = _GetInputsValues(messageBox);
-        messageBox.animate({
-            "margin-top" :  _constants.topBuffer - $(window).height() - messageBox.outerHeight()
+        spacer.animate({
+            "height"        : 0,
+            "margin-top"    : spacer.data("spacerTopMargin")
         }, instance.settings.speed, function(){
             // Remove DOM objects
             overlay.remove();
