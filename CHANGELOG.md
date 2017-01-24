@@ -5,6 +5,21 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## v2.2.0 - 2017-01-24
+### Added
+- Filters (`filterDone` and `filterFail` options)
+- Error message capabilities
+- Input `autotrim` option for type "text and "password"
+
+### Changed
+- Default keycodes for `buttonDone`
+
+### Fixed
+- Minor CSS fix: added `margin-bottom` for buttons and removed `padding-bottom` from `.messagebox_buttons` wrapper
+- Minor code fix: don't remove the focus from an existing MessageBox input if another MessageBox is created and queued
+
+
+
 ## v2.1.0 - 2016-11-12
 ### Added
 - Bower and npm support

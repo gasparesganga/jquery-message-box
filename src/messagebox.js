@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
 MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.confirm() and window.prompt() functions
     Author          : Gaspare Sganga
-    Version         : 2.1.0
+    Version         : 2.2.0
     License         : MIT
     Documentation   : http://gasparesganga.com/labs/jquery-message-box/
 ***********************************************************************************************************************/
@@ -12,6 +12,8 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         buttonFail      : undefined,
         buttonsOrder    : "done fail",
         customClass     : "",
+        filterDone      : undefined,
+        filterFail      : undefined,
         input           : false,
         message         : "",
         queue           : true,
@@ -66,6 +68,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
     var _constants = {
         buttonDoneName          : "buttonDone",
         buttonFailName          : "buttonFail",
+        errorSpeed              : 200,
         keyCodeDone             : [13],
         keyCodeFail             : [27],
         maxHeightCoefficient    : 1.5,
@@ -87,7 +90,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         settings.top = $.trim(settings.top).toLowerCase();
         
         // Remove focus from active element
-        $(document.activeElement).trigger("blur");
+        $(document.activeElement).not(".messagebox_content_input").trigger("blur");
         
         // Create MessageBox instance
         var instance = {
@@ -161,6 +164,14 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
             _ParseInputs(settings.input).appendTo(inputs).first().trigger("focus");
         }
         
+        // Error
+        $("<div>", {
+            class   : "messagebox_content_error",
+            css     : _css.boxSizing
+        })
+        .hide()
+        .appendTo(content);
+        
         // Buttons
         var buttonsWrapper = $("<div>", {
             class   : "messagebox_buttons"
@@ -171,10 +182,10 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         // Button Done
         if (settings.buttonDone) {
             var buttons = $([]);
-            if (typeof settings.buttonDone == "string") {
+            if (typeof settings.buttonDone === "string") {
                 buttons = buttons.add(_CreateButton("messagebox_button_done", _constants.buttonDoneName, {
                     text    : settings.buttonDone, 
-                    keyCode : _constants.keyCodeDone
+                    keyCode : _constants.keyCodeDone.concat(settings.buttonFail ? [] : _constants.keyCodeFail)
                 }, instance));
             } else {
                 $.each(settings.buttonDone, function(name, definition){
@@ -187,7 +198,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         // Button Fail
         if (settings.buttonFail) {
             var buttons = $([]);
-            if (typeof settings.buttonFail == "string") {
+            if (typeof settings.buttonFail === "string") {
                 buttons = buttons.add(_CreateButton("messagebox_button_fail", _constants.buttonFailName, {
                     text    : settings.buttonFail, 
                     keyCode : _constants.keyCodeFail
@@ -207,7 +218,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         // Calculate spacer's height
         var spacerHeight    = 0;
         var spacerTopMargin = 0 - messageBox.outerHeight() - _constants.topBuffer;;
-        if ($.trim(settings.top).toLowerCase() == "auto") {
+        if ($.trim(settings.top).toLowerCase() === "auto") {
             // Auto: center vertically using flexbox
             overlay.css("justify-content", "center");
             spacerTopMargin = spacerTopMargin - $(window).height();
@@ -216,7 +227,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
             overlay.css("justify-content", "flex-start");
             spacerHeight = settings.top;;
             // Calculate max-height
-            if ($.trim(settings.top).toLowerCase().slice(-1) == "%")  {
+            if ($.trim(settings.top).toLowerCase().slice(-1) === "%")  {
                 // Percentage: set a fixed percentage value too
                 messageBox.css("max-height", 100 - (parseInt(settings.top, 10) * _constants.maxHeightCoefficient) + "%");
             } else {
@@ -242,7 +253,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
     
     
     function _CreateButton(mainClass, name, definition, instance){
-        if (typeof definition == "string") definition = {text : definition};
+        if (typeof definition === "string") definition = {text : definition};
         // Button
         var button = $("<button>", {
             class   : mainClass,
@@ -261,7 +272,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
     }
     
     function _ParseKeycodes(keyCodes){
-        if (typeof keyCodes == "number" || typeof keyCodes == "string") keyCodes = [keyCodes];
+        if (typeof keyCodes === "number" || typeof keyCodes === "string") keyCodes = [keyCodes];
         var ret = [];
         if ($.isArray(keyCodes)) {
             ret = $.map(keyCodes, function(keycode){
@@ -274,11 +285,13 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
     
     function _ParseInputs(settingsInput){
         // Boolean: plain textbox
-        if (settingsInput === true || typeof settingsInput == "string") {
+        if (settingsInput === true || typeof settingsInput === "string") {
             return _FormatInput($("<input>", {
                 value   : (settingsInput === true) ? "" : settingsInput,
                 type    : "text"
-            }));
+            }), {
+                autotrim    : true
+            });
         }
         
         // Array: plain textboxes with default values
@@ -288,7 +301,9 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
                 ret = ret.add(_FormatInput($("<input>", {
                     value   : value,
                     type    : "text"
-                })));
+                }), {
+                    autotrim    : true
+                }));
             });
             return ret;
         }
@@ -321,7 +336,11 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         var type = $.trim(definition.type).toLowerCase();
         switch (type) {
             case "select":
-                var select  = _FormatInput($("<select>"), name, definition);
+                var select  = _FormatInput($("<select>"), {
+                    name        : name, 
+                    title       : definition.title,
+                    autotrim    : false
+                });
                 var options = !$.isArray(definition.options) ? definition.options : definition.options.reduce(function(ret, item){
                     ret[item] = item;
                     return ret;
@@ -366,22 +385,26 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
             case "password":
             default:
                 return _FormatInput($("<input>", {
-                    type        : (type == "password") ? "password" : "text",
+                    type        : (type === "password") ? "password" : "text",
                     maxlength   : definition.maxlength,
                     placeholder : definition.title,
                     value       : definition.default
-                }), name, definition);
+                }), {
+                    name        : name, 
+                    title       : definition.title,
+                    autotrim    : definition.autotrim
+                });
         }
     }
     
-    function _FormatInput(input, name, definition){
-        definition  = definition || {};
+    function _FormatInput(input, par){
+        if (par.autotrim !== false) input.on("blur", _Input_Blur);
         return input
             .addClass("messagebox_content_input")
             .css(_css.boxSizing)
             .attr({
-                name    : name,
-                title   : definition.title
+                name    : par.name,
+                title   : par.title
             });
     }
     
@@ -403,7 +426,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
             }
             retObject[name] = values[i];
         });
-        if (valuesOnly && values.length == 1) return values[0];
+        if (valuesOnly && values.length === 1) return values[0];
         return valuesOnly ? values : retObject;
     }
     
@@ -425,34 +448,66 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
     // **************************************************
     //  EVENTS
     // **************************************************
+    function _Input_Blur(event){
+        var input = $(event.currentTarget);
+        input.val($.trim(input.val()));
+    }
+    
     function _Button_Click(event){
         var button      = $(event.currentTarget);
         var messageBox  = button.closest(".messagebox");
         var overlay     = messageBox.closest(".messagebox_overlay");
         var spacer      = overlay.children(".messagebox_spacer").first();
+        var content     = messageBox.children(".messagebox_content").first();
+        var error       = content.children(".messagebox_content_error").first();
         var instance    = messageBox.data("instance");
         var inputValues = _GetInputsValues(messageBox);
-        spacer.animate({
-            "height"        : 0,
-            "margin-top"    : spacer.data("spacerTopMargin")
-        }, instance.settings.speed, function(){
-            // Remove DOM objects
-            overlay.remove();
-            
-            // Resolve or Reject Deferred
-            if (button.hasClass("messagebox_button_done")) {
-                instance.deferred.resolve(inputValues, event.data.name);
-            } else {
-                instance.deferred.reject(inputValues, event.data.name);
-            }
-            
-            if (_activeStack.length) {
-                // Restore the last active instance
-                _active = _activeStack.pop();
-            } else {
-                // Execute next Queue instance
-                _active = undefined;
-                _ExecuteQueue();
+        var filterFunc  = button.hasClass("messagebox_button_done") ? instance.settings.filterDone : instance.settings.filterFail;
+        
+        // Filter
+        error.hide().empty();
+        var filterDef = ($.type(filterFunc) !== "function") ? $.Deferred().resolve() : $.when(filterFunc(inputValues, event.data.name)).then(function(ret){
+            // Bool false: abort
+            if (ret === false) return $.Deferred().reject();
+            var retType = $.type(ret);
+            // Error: display error message and abort (NOTE: it requires jQuery 1.9+ or it will fall in the next case)
+            if (retType === "error") return $.Deferred().reject(ret.message);
+            // String or (jQuery) Object: display error and abort
+            if (retType === "string" || retType === "object" || retType === "array") return $.Deferred().reject(ret);
+            // Everything else: continue
+            return $.Deferred().resolve();
+        });
+        
+        filterDef.then(function(){
+            spacer.animate({
+                "height"        : 0,
+                "margin-top"    : spacer.data("spacerTopMargin")
+            }, instance.settings.speed, function(){
+                // Remove DOM objects
+                overlay.remove();
+                
+                // Resolve or Reject Deferred
+                if (button.hasClass("messagebox_button_done")) {
+                    instance.deferred.resolve(inputValues, event.data.name);
+                } else {
+                    instance.deferred.reject(inputValues, event.data.name);
+                }
+                
+                if (_activeStack.length) {
+                    // Restore the last active instance
+                    _active = _activeStack.pop();
+                } else {
+                    // Execute next Queue instance
+                    _active = undefined;
+                    _ExecuteQueue();
+                }
+            });
+        }, function(errorMessage){
+            var errorMessageType = $.type(errorMessage);
+            if (errorMessageType === "string" || errorMessageType === "object" || errorMessageType === "array") {
+                error.css("max-width", content.width()).append(errorMessage).slideDown(_constants.errorSpeed, function(){
+                    content.scrollTop(content.height());
+                });
             }
         });
     }
@@ -471,7 +526,10 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
     function _Window_KeyDown(event){
         if (!_active) return;
         var button = _active.keyCodes[event.which];
-        if (button) button.trigger("click");
+        if (button) {
+            button.closest(".messagebox").find(".messagebox_content_input").trigger("blur");
+            button.trigger("click");
+        }
     }
     
     

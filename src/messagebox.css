@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
 MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.confirm() and window.prompt() functions
     Author          : Gaspare Sganga
-    Version         : 2.1.0
+    Version         : 2.2.0
     License         : MIT
     Documentation   : http://gasparesganga.com/labs/jquery-message-box/
 ***********************************************************************************************************************/
@@ -37,7 +37,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
 /* Content */
 .messagebox_content {
     padding         : 20px;
-    padding-bottom  : 0;    /* In order to preserve "padding-bottom" when the content is taller than the MessageBox and thus scrolled on the Y-axis, use the following's :after pseudo-class "height" value instead of "padding-bottom" here! */
+    padding-bottom  : 0;    /* In order to preserve "padding-bottom" when the content is taller than the MessageBox and thus scrolled on the Y-axis, use the following :after pseudo-class "height" value instead of "padding-bottom" here! */
 }
     .messagebox_content:after {
         content : "";
@@ -46,7 +46,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         height  : 20px;     /* Use this value as if it was #messagebox_content's "padding-bottom" to preserve it when the content overflows Y-axis and the scrollbar is shown */
     }
  
-/* Input's Label */
+/* Label for Input */
 .messagebox_content_label {
     display     : block;
     width       : 100%;
@@ -78,7 +78,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         box-shadow      : inset 0px 0px 3px #ffd540;
     }
     
-    /* Input's style when placed inside a label */
+    /* Input style when placed inside a label */
     .messagebox_content_label .messagebox_content_input {
         margin-top  : 4px;
     }
@@ -87,13 +87,22 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
     .messagebox_content_input_selectplaceholder {
         color   : #909090;
     }
-
+    
+/* Error */
+.messagebox_content_error {
+    background-color    : #fad0d5;
+    color               : #a02020;
+    margin-top          : 15px;
+    margin-bottom       : -10px;
+    padding             : 4px 6px;
+    border-radius       : 2px;
+}
 
 /* Buttons */
 .messagebox_buttons {
     background-color    : #f5f5f5;
     border-top          : 1px solid #c8c8c8;
-    padding             : 10px 20px;
+    padding             : 10px 20px 0px 20px;
     text-align          : center;
 }
     .messagebox_buttons button {
@@ -102,7 +111,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         font-weight         : bold;
         text-align          : center;
         min-width           : 75px;
-        margin              : 0px 4px;
+        margin              : 0px 4px 10px 4px;
         padding             : 5px 10px;
         cursor              : pointer;
         color               : #404040;
