@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## v2.2.1 - 2017-02-18
+### Fixed
+- Minor bugfix that addresses event bubbling when keyboard is used
+
+
+
 ## v2.2.0 - 2017-01-24
 ### Added
 - Filters (`filterDone` and `filterFail` options)

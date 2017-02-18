@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
 MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.confirm() and window.prompt() functions
     Author          : Gaspare Sganga
-    Version         : 2.2.0
+    Version         : 2.2.1
     License         : MIT
     Documentation   : http://gasparesganga.com/labs/jquery-message-box/
 ***********************************************************************************************************************/
@@ -455,6 +455,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
     
     function _Button_Click(event){
         var button      = $(event.currentTarget);
+        var buttonName  = event.data.name;
         var messageBox  = button.closest(".messagebox");
         var overlay     = messageBox.closest(".messagebox_overlay");
         var spacer      = overlay.children(".messagebox_spacer").first();
@@ -466,7 +467,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         
         // Filter
         error.hide().empty();
-        var filterDef = ($.type(filterFunc) !== "function") ? $.Deferred().resolve() : $.when(filterFunc(inputValues, event.data.name)).then(function(ret){
+        var filterDef = ($.type(filterFunc) !== "function") ? $.Deferred().resolve() : $.when(filterFunc(inputValues, buttonName)).then(function(ret){
             // Bool false: abort
             if (ret === false) return $.Deferred().reject();
             var retType = $.type(ret);
@@ -488,9 +489,9 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
                 
                 // Resolve or Reject Deferred
                 if (button.hasClass("messagebox_button_done")) {
-                    instance.deferred.resolve(inputValues, event.data.name);
+                    instance.deferred.resolve(inputValues, buttonName);
                 } else {
-                    instance.deferred.reject(inputValues, event.data.name);
+                    instance.deferred.reject(inputValues, buttonName);
                 }
                 
                 if (_activeStack.length) {
