@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
 MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.confirm() and window.prompt() functions
     Author          : Gaspare Sganga
-    Version         : 2.2.2
+    Version         : 2.2.3
     License         : MIT
     Documentation   : https://gasparesganga.com/labs/jquery-message-box/
 ***********************************************************************************************************************/
@@ -125,21 +125,21 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         
         // Overlay
         var overlay = $("<div>", {
-            class   : "messagebox_overlay"
+            "class" : "messagebox_overlay"
         })
         .css(_css.overlay)
         .appendTo("body");
         
         // Spacer
         var spacer = $("<div>", {
-            class   : "messagebox_spacer"
+            "class" : "messagebox_spacer"
         })
         .css(_css.spacer)
         .appendTo(overlay);
         
         // MessageBox
         var messageBox = $("<div>", {
-            class   : "messagebox"
+            "class" : "messagebox"
         })
         .addClass(settings.customClass)
         .css(_css.messagebox)
@@ -149,8 +149,8 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         
         // Content
         var content = $("<div>", {
-            class   : "messagebox_content",
-            html    : settings.message
+            "class" : "messagebox_content",
+            "html"  : settings.message
         })
         .css(_css.content)
         .appendTo(messageBox);
@@ -158,23 +158,23 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         // Input
         if (settings.input !== false && settings.input !== undefined && settings.input !== null) {
             var inputs = $("<div>", {
-                class   : "messagebox_content_inputs",
-                css     : _css.boxSizing
+                "class" : "messagebox_content_inputs",
+                "css"   : _css.boxSizing
             }).appendTo(content);
             _ParseInputs(settings.input).appendTo(inputs).first().trigger("focus");
         }
         
         // Error
         $("<div>", {
-            class   : "messagebox_content_error",
-            css     : _css.boxSizing
+            "class" : "messagebox_content_error",
+            "css"   : _css.boxSizing
         })
         .hide()
         .appendTo(content);
         
         // Buttons
         var buttonsWrapper = $("<div>", {
-            class   : "messagebox_buttons"
+            "class" : "messagebox_buttons"
         })
         .css(_css.buttons)
         .appendTo(messageBox);
@@ -256,10 +256,10 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
         if (typeof definition === "string") definition = {text : definition};
         // Button
         var button = $("<button>", {
-            class   : mainClass,
-            text    : definition.text || ""
+            "class" : mainClass,
+            "text"  : definition.text || ""
         })
-        .addClass(definition.class)
+        .addClass(definition["class"])
         .css(_css.boxSizing)
         .on("click", {name : name}, _Button_Click);
         
@@ -315,9 +315,9 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
                 var input = _CreateInput(name, definition);
                 if (definition.label !== undefined) {
                     var label = $("<label>", {
-                        class   : "messagebox_content_label",
-                        css     : _css.boxSizing,
-                        text    : definition.label
+                        "class" : "messagebox_content_label",
+                        "css"   : _css.boxSizing,
+                        "text"  : definition.label
                     });
                     input.appendTo(label);
                     ret = ret.add(label);
@@ -355,7 +355,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
                         value   : value,
                         html    : html
                     }).appendTo(select);
-                    if (definition.default == value) {
+                    if (definition["default"] === value) {
                         option.prop("selected", true);
                         defaultSelected = true;
                     }
@@ -388,7 +388,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
                     type        : (type === "password") ? "password" : "text",
                     maxlength   : definition.maxlength,
                     placeholder : definition.title,
-                    value       : definition.default
+                    value       : definition["default"]
                 }), {
                     name        : name, 
                     title       : definition.title,
