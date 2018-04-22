@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## v2.2.2 - 2018-04-22
+### Fixed
+- Removed a comma in excess causing issues with some browsers
+
+
+
 ## v2.2.1 - 2017-02-18
 ### Fixed
 - Minor bugfix that addresses event bubbling when keyboard is used

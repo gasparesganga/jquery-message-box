@@ -1,9 +1,9 @@
 /***********************************************************************************************************************
 MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.confirm() and window.prompt() functions
     Author          : Gaspare Sganga
-    Version         : 2.2.1
+    Version         : 2.2.2
     License         : MIT
-    Documentation   : http://gasparesganga.com/labs/jquery-message-box/
+    Documentation   : https://gasparesganga.com/labs/jquery-message-box/
 ***********************************************************************************************************************/
 (function($, undefined){
     // Default Settings
@@ -43,7 +43,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
             "box-sizing"    : "border-box",
             "flex"          : "0 1 auto",
             "display"       : "flex",
-            "flex-flow"     : "column nowrap",
+            "flex-flow"     : "column nowrap"
         },
         content : {
             "box-sizing"    : "border-box",
