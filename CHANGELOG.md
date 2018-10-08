@@ -1,8 +1,31 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/) 
-and this project adheres to [Semantic Versioning](http://semver.org/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/) 
+and this project adheres to [Semantic Versioning](https://semver.org/).
+
+
+## v3.0.0 - 2018-10-08
+### Added
+- `customOverlayClass` option
+- `title` option
+- Input type `"checkbox"`
+- Input type `"caption"`
+- Inputs `customClass` option
+- Inputs `message` option
+- Javascript sourcemaps
+- Minified default CSS file
+
+### Changed
+- Inputs `default` option renamed to `defaultValue`
+- Buttons `class` option renamed to `customClass`
+- Simplified default CSS which is more easily customizable
+- Folder structure has changed, with source files under `src/` and production files under `dist/`
+
+### Fixed
+- Content horizontal padding is preserved also in case of horizontal overflow
+- Minor CSS and code quirks
+
 
 
 ## v2.2.3 - 2018-04-22

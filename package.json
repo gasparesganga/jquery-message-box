@@ -1,6 +1,6 @@
 {
     "name": "gasparesganga-jquery-message-box",
-    "version": "2.2.3",
+    "version": "3.0.0",
     "description": "A jQuery Plugin to replace Javascript's window.alert(), window.confirm() and window.prompt() functions",
     "homepage": "https://gasparesganga.com/labs/jquery-message-box/",
     "author": "Gaspare Sganga <contact@gasparesganga.com> (https://gasparesganga.com)",
@@ -12,6 +12,7 @@
     "bugs": {
         "url": "https://github.com/gasparesganga/jquery-message-box/issues"
     },
+    "main": "dist/messagebox.min.js",
     "keywords": [
         "ecosystem:jquery",
         "jquery-plugin",
@@ -26,5 +27,16 @@
     ],
     "dependencies": {
         "jquery": ">=1.8.0"
+    },
+    "devDependencies": {
+        "del": "^3.0.0",
+        "gulp": "^4.0.0",
+        "gulp-clean-css": "^3.10.0",
+        "gulp-header": "^2.0.5",
+        "gulp-rename": "^1.4.0",
+        "gulp-replace": "^1.0.0",
+        "gulp-sourcemaps": "^2.6.4",
+        "gulp-uglify": "^3.0.1",
+        "inquirer": "^6.2.0"
     }
 }
