@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
 LoadingOverlay - A jQuery Plugin to replace Javascript's window.alert(), window.confirm() and window.prompt() functions
     Author          : Gaspare Sganga
-    Version         : 3.0.0
+    Version         : 3.1.0dev
     License         : MIT
     Documentation   : https://gasparesganga.com/labs/jquery-message-box/
 ***********************************************************************************************************************/
@@ -417,7 +417,8 @@ LoadingOverlay - A jQuery Plugin to replace Javascript's window.alert(), window.
                 var select  = _FormatInput($("<select>"), {
                     name        : name, 
                     title       : definition.title,
-                    customClass : definition.customClass
+                    customClass : definition.customClass,
+                    autotrim    : false
                 });
                 var options = !$.isArray(definition.options) ? definition.options : definition.options.reduce(function(ret, item){
                     ret[item] = item;
@@ -459,6 +460,25 @@ LoadingOverlay - A jQuery Plugin to replace Javascript's window.alert(), window.
                 }
                 return select;
                 
+            case "textarea":
+            case "memo":
+                return _FormatInput($("<textarea>", {
+                    "maxlength"     : definition.maxlength,
+                    "placeholder"   : definition.title,
+                    "class"         : "messagebox_content_input_textarea",
+                    "rows"          : definition.rows
+                })
+                .css({
+                    "resize"    : definition.resize ? "vertical" : "none"
+                })
+                .val(definition.defaultValue)
+                , {
+                    name        : name, 
+                    title       : definition.title,
+                    customClass : definition.customClass,
+                    autotrim    : definition.autotrim
+                });
+            
             case "text":
             case "password":
             default:
@@ -470,28 +490,28 @@ LoadingOverlay - A jQuery Plugin to replace Javascript's window.alert(), window.
                 }), {
                     name        : name, 
                     title       : definition.title,
-                    autotrim    : definition.autotrim,
-                    customClass : definition.customClass
+                    customClass : definition.customClass,
+                    autotrim    : definition.autotrim
                 });
         }
     }
     
-    function _FormatInput(input, par){
-        if (par.autotrim) input.on("blur", _Input_Blur);
+    function _FormatInput(input, params){
+        if (params.autotrim || params.autotrim === undefined) input.on("blur", _Input_Blur);
         return input
             .addClass("messagebox_content_input")
-            .addClass(par["customClass"])
+            .addClass(params.customClass)
             .css(_css.input)
             .attr({
-                name    : par.name,
-                title   : par.title
+                name    : params.name,
+                title   : params.title
             });
     }
     
     function _GetInputsValues(messageBox){
         var names   = [];
         var values  = [];
-        messageBox.find(".messagebox_content_inputs").find("input, select").each(function(){
+        messageBox.find(".messagebox_content_inputs").find("input, select, textarea").each(function(){
             var input = $(this);
             names.push(input.attr("name"));
             values.push(input.is(":checkbox") ? input.is(":checked") : input.val());
