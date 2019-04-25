@@ -15,6 +15,9 @@ LoadingOverlay - A jQuery Plugin to replace Javascript's window.alert(), window.
 .messagebox_overlay {
     background-color    : rgba(255,255,255,0.6);
 }
+    .messagebox_overlay *:focus {
+        outline : 0;
+    }
 
 /* MessageBox */
 .messagebox {
@@ -141,4 +144,8 @@ LoadingOverlay - A jQuery Plugin to replace Javascript's window.alert(), window.
             background-color    : #e6e6e6;
             border              : 1px solid #a0a0a0;
             box-shadow          : inset 0px 0px 6px #d0d0d0;
+        }
+        .messagebox_buttons_button::-moz-focus-inner {
+            padding : 0;
+            border  : 0;
         }

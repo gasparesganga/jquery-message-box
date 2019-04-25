@@ -631,7 +631,9 @@ LoadingOverlay - A jQuery Plugin to replace Javascript's window.alert(), window.
         if (!_active) return;
         var button = _active.keyCodes[event.which];
         if (button) {
-            button.closest(".messagebox").find(".messagebox_content_input").trigger("blur");
+            var messagebox = button.closest(".messagebox");
+            if (event.which === 13 && messagebox.find(".messagebox_content_input_textarea:focus").length) return;   // Allows newline in textarea
+            messagebox.find(".messagebox_content_input").trigger("blur");
             button.trigger("click");
         }
     }
@@ -641,18 +643,6 @@ LoadingOverlay - A jQuery Plugin to replace Javascript's window.alert(), window.
         $(window)
             .on("resize",   _Window_Resize)
             .on("keydown",  _Window_KeyDown);
-        
-        $("head").append([
-            "<style>",
-                ".messagebox_overlay *:focus {",
-                  "outline : 0;",
-                "}",
-                ".messagebox_buttons button::-moz-focus-inner {",
-                  "padding : 0;",
-                  "border  : 0;",
-                "}",
-            "</style>"
-        ].join(" "));
     });
     
 }(jQuery));
