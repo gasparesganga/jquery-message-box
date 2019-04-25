@@ -5,14 +5,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
 
+## v3.1.0 - 2019-04-25
+### Added
+- Input type `"textarea"` (alias `"memo"`)
+- Input `resize` option for type `"textarea"`
+- Input `rows` option for type `"textarea"`
+- Customizable `messagebox_content_input_textarea` class in the external CSS file
+- Enforced `strict mode`
+
+### Changed
+- Input `autotrim` option for types `"text`, `"password"` and `"textarea"` defaults to `true`
+- CSS that was injected into document `head` is now included in the external CSS file
+
+### Removed
+- Direct CSS injection into document `head`
+
+
+
 ## v3.0.0 - 2018-10-08
 ### Added
 - `customOverlayClass` option
 - `title` option
 - Input type `"checkbox"`
 - Input type `"caption"`
-- Inputs `customClass` option
-- Inputs `message` option
+- Input `customClass` option
+- Inputs `message` option for type `"caption"`
 - Javascript sourcemaps
 - Minified default CSS file
 
@@ -50,7 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 - Filters (`filterDone` and `filterFail` options)
 - Error message capabilities
-- Input `autotrim` option for type "text and "password"
+- Input `autotrim` option for type `"text"` and `"password"`
 
 ### Changed
 - Default keycodes for `buttonDone`

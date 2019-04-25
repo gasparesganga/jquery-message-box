@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
 LoadingOverlay - A jQuery Plugin to replace Javascript's window.alert(), window.confirm() and window.prompt() functions
     Author          : Gaspare Sganga
-    Version         : 3.1.0dev
+    Version         : 3.1.0
     License         : MIT
     Documentation   : https://gasparesganga.com/labs/jquery-message-box/
 ***********************************************************************************************************************/
