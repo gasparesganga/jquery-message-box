@@ -6,6 +6,8 @@ LoadingOverlay - A jQuery Plugin to replace Javascript's window.alert(), window.
     Documentation   : https://gasparesganga.com/labs/jquery-message-box/
 ***********************************************************************************************************************/
 (function($, undefined){
+    "use strict";
+    
     // Default Settings
     var _defaults = {
         buttonDone          : "OK",
