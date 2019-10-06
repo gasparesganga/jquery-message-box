@@ -481,11 +481,13 @@ LoadingOverlay - A jQuery Plugin to replace Javascript's window.alert(), window.
                     autotrim    : definition.autotrim
                 });
             
-            case "text":
-            case "password":
             default:
+                var validTypes = ["password", "text", "number", "date"];
+                if (validTypes.indexOf(type) == -1) {
+                    type = "text";
+                }
                 return _FormatInput($("<input>", {
-                    "type"          : (type === "password") ? "password" : "text",
+                    "type"          : type,
                     "maxlength"     : definition.maxlength,
                     "placeholder"   : definition.title,
                     "value"         : definition.defaultValue
