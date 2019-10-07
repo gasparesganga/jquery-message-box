@@ -482,16 +482,13 @@ LoadingOverlay - A jQuery Plugin to replace Javascript's window.alert(), window.
                 });
             
             default:
-                var validTypes = ["password", "text", "number", "date"];
-                if (validTypes.indexOf(type) == -1) {
-                    type = "text";
-                }
-                return _FormatInput($("<input>", {
+                if (["text", "password", "date", "time", "number", "color", "email"].indexOf(type) === -1) type = "text";
+                return _FormatInput($("<input>", $.extend(true, {}, definition.htmlAttributes || {}, {
                     "type"          : type,
                     "maxlength"     : definition.maxlength,
                     "placeholder"   : definition.title,
                     "value"         : definition.defaultValue
-                }), {
+                })), {
                     name        : name, 
                     title       : definition.title,
                     customClass : definition.customClass,
