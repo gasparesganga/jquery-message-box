@@ -4,7 +4,7 @@ var fs              = require("fs");
 var pkg             = require("./package.json");
 var headerTemplate  = fs.readFileSync("header.txt");
 var headerVars      = {
-    name            : "LoadingOverlay",
+    name            : "jQuery Message Box",
     author          : "Gaspare Sganga",
     description     : pkg.description,
     version         : pkg.version,
