@@ -1,6 +1,6 @@
 {
     "name": "gasparesganga-jquery-message-box",
-    "version": "3.2.0",
+    "version": "3.2.1",
     "description": "A jQuery Plugin to replace Javascript's window.alert(), window.confirm() and window.prompt() functions",
     "homepage": "https://gasparesganga.com/labs/jquery-message-box/",
     "author": "Gaspare Sganga <contact@gasparesganga.com> (https://gasparesganga.com)",

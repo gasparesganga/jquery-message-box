@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
 
+## v3.2.1 - 2019-10-16
+### Fixed
+- Plugin name in header description
+
+
+
 ## v3.2.0 - 2019-10-07
 ### Added
 - Input types `"date"`, `"time"`, `"number"`, `"color"`, `"email"`
