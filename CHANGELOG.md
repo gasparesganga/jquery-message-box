@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
 
+## v3.2.2 - 2020-05-21
+### Fixed
+- Added `z-index : 9999` to `.messagebox_overlay` class in default CSS file to improve interaction with external components and plugins.
+
+
+
 ## v3.2.1 - 2019-10-16
 ### Fixed
 - Plugin name in header description

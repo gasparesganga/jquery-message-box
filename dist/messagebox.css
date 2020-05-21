@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
 MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.confirm() and window.prompt() functions
     Author          : Gaspare Sganga
-    Version         : 3.2.1
+    Version         : 3.2.2
     License         : MIT
     Documentation   : https://gasparesganga.com/labs/jquery-message-box/
 ***********************************************************************************************************************/
@@ -14,6 +14,7 @@ MessageBox - A jQuery Plugin to replace Javascript's window.alert(), window.conf
 /* Overlay */
 .messagebox_overlay {
     background-color    : rgba(255,255,255,0.6);
+    z-index             : 9999;
 }
     .messagebox_overlay *:focus {
         outline : 0;
